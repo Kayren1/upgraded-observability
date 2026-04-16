@@ -70,7 +70,11 @@ class User(Base):
     )
 
     # Superusers can access all workspaces and perform admin operations.
+<<<<<<< HEAD
     # TODO(kweku, 2025-04-05): Implement RBAC (role-based access control) instead of superuser flag.
+=======
+    # TODO(kweku, 2025-04-16): Implement RBAC (role-based access control) instead of superuser flag.
+>>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     # Right now we have a simple binary flag, but proper RBAC would be better for enterprise.
     user_is_superuser_with_admin_privileges = Column(
         Boolean,
@@ -101,7 +105,11 @@ class User(Base):
     )
 
     # last_login timestamp could be added here for audit purposes.
+<<<<<<< HEAD
     # TODO(kweku, 2025-04-05): Add last_login_at field to track when users last accessed the platform.
+=======
+    # TODO(kweku, 2025-04-16): Add last_login_at field to track when users last accessed the platform.
+>>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     # Useful for security audits and identifying dormant accounts.
 
     # ========================================================================

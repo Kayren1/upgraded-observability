@@ -33,7 +33,11 @@ async def lifespan(app: FastAPI):
     yield
 
     logger.info("🛑 Shutting down gracefully...")
+<<<<<<< HEAD
     # TODO(kweku, 2025-03-16): Add cleanup for background tasks if we add Celery workers.
+=======
+    # TODO(kweku, 2025-04-16): Add cleanup for background tasks if we add Celery workers.
+>>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     # Currently, we're stateless, so there's nothing to clean up.
 
 
@@ -47,7 +51,11 @@ app = FastAPI(
 )
 
 # Add CORS middleware. In production, this should be restricted to specific origins.
+<<<<<<< HEAD
 # TODO(kweku, 2025-03-16): Replace ["*"] with actual frontend domain in production.
+=======
+# TODO(kweku, 2025-04-16): Replace ["*"] with actual frontend domain in production.
+>>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
 # Allowing all origins is a security risk. We're only doing this for local development.
 app.add_middleware(
     CORSMiddleware,
@@ -85,7 +93,11 @@ def comprehensive_health_check():
     Returns status of all critical systems: database, cache, and metrics storage.
     Used by health monitors and CI/CD pipelines.
     """
+<<<<<<< HEAD
     # TODO(kweku, 2025-03-16): Actually check Redis and Prometheus connections.
+=======
+    # TODO(kweku, 2025-04-16): Actually check Redis and Prometheus connections.
+>>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     # Right now this is hardcoded. Once we have proper clients, verify actual connectivity.
     health_status_by_component = {
         "api_server": "healthy",

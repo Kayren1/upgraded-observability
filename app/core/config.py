@@ -59,7 +59,11 @@ class Settings(BaseSettings):
     )
     JWT_SIGNING_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRATION_MINUTES: int = 30
+<<<<<<< HEAD
     # TODO(kweku, 2025-03-18): Implement refresh tokens for better security.
+=======
+    # TODO(kweku, 2025-04-16): Implement refresh tokens for better security.
+>>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     # Right now we only have short-lived access tokens. A refresh token system
     # would allow long sessions with automatic token rotation.
 
