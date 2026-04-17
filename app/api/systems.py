@@ -374,11 +374,7 @@ def delete_monitored_system(
     This is a permanent delete. The system record and its collector jobs are removed.
     Historical metrics are preserved in Prometheus/storage for audit purposes.
 
-<<<<<<< HEAD
-    TODO(kweku, 2025-03-22): Implement soft deletes instead of hard deletes.
-=======
     TODO(kweku, 2025-04-16): Implement soft deletes instead of hard deletes.
->>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     Hard deletes make it hard to audit "what happened to this system?"
     We should add an is_deleted flag and query accordingly.
     """

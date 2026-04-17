@@ -1,11 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 
 from .core.config import settings
-from .core.database import engine, Base
+from .core.database import engine, Base, get_database_session
 from .api import api_router
+from .services.health_check import perform_comprehensive_platform_health_check
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +15,8 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """
     Application lifecycle manager.
-    Called at startup and shutdown. We use this to ensure database tables
-    exist before the first request hits the API.
+    Called at startup and shutdown. We use this to initialize the database
+    and verify all external service connections before the first request.
     """
     logger.info("🚀 Starting Upgraded Observability Platform...")
     try:
@@ -30,14 +31,14 @@ async def lifespan(app: FastAPI):
         )
         raise
 
+    # TODO(kweku, 2025-04-16): Add startup verification of Redis and Prometheus connections.
+    # If any critical service is unreachable, fail fast and don't start the application.
+    # This prevents silent failures after deployment.
+
     yield
 
     logger.info("🛑 Shutting down gracefully...")
-<<<<<<< HEAD
-    # TODO(kweku, 2025-03-16): Add cleanup for background tasks if we add Celery workers.
-=======
     # TODO(kweku, 2025-04-16): Add cleanup for background tasks if we add Celery workers.
->>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
     # Currently, we're stateless, so there's nothing to clean up.
 
 
@@ -51,11 +52,7 @@ app = FastAPI(
 )
 
 # Add CORS middleware. In production, this should be restricted to specific origins.
-<<<<<<< HEAD
-# TODO(kweku, 2025-03-16): Replace ["*"] with actual frontend domain in production.
-=======
-# TODO(kweku, 2025-04-16): Replace ["*"] with actual frontend domain in production.
->>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
+# TODO(kweku, 2025-04-16): Replace CORS_ORIGINS with actual frontend domain(s) in production.
 # Allowing all origins is a security risk. We're only doing this for local development.
 app.add_middleware(
     CORSMiddleware,
@@ -71,39 +68,57 @@ app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/")
-def health_endpoint_at_root():
+def platform_root_endpoint():
     """
-    Health check and information endpoint at platform root.
-    Useful for load balancers and status monitors.
+    Platform root endpoint providing metadata and documentation links.
+    Used by load balancers, browsers, and API clients.
     """
-    platform_metadata = {
+    platform_metadata_response = {
         "platform_name": settings.APP_NAME,
         "platform_version": settings.APP_VERSION,
-        "deployment_status": "healthy",
         "documentation_url": "/docs",
         "openapi_schema_url": "/openapi.json",
+        "health_check_url": "/health",
     }
-    return platform_metadata
+    return platform_metadata_response
 
 
 @app.get("/health")
-def comprehensive_health_check():
+def real_time_platform_health_check(database_session=Depends(get_database_session)):
     """
-    Detailed health check endpoint.
-    Returns status of all critical systems: database, cache, and metrics storage.
-    Used by health monitors and CI/CD pipelines.
+    Real-time health check endpoint.
+
+    Returns comprehensive status of all critical platform services:
+    - PostgreSQL database
+    - Redis cache
+    - Prometheus metrics storage
+
+    Used by:
+    - Load balancers for availability detection
+    - Kubernetes for liveness/readiness probes
+    - Monitoring systems for uptime verification
+    - CI/CD pipelines for deployment validation
+
+    Response statuses:
+    - healthy: All services operational
+    - degraded: Services operational but experiencing latency
+    - unhealthy: One or more services down or unresponsive
     """
-<<<<<<< HEAD
-    # TODO(kweku, 2025-03-16): Actually check Redis and Prometheus connections.
-=======
-    # TODO(kweku, 2025-04-16): Actually check Redis and Prometheus connections.
->>>>>>> 4e126db3e6dd6efc3e45c29b5713e92f2f4e74ac
-    # Right now this is hardcoded. Once we have proper clients, verify actual connectivity.
-    health_status_by_component = {
-        "api_server": "healthy",
-        "database_connection": "connected",
-        "redis_cache": "connected",
-        "prometheus_metrics_store": "connected",
-        "service_status_timestamp": None,
-    }
-    return health_status_by_component
+    if database_session is None:
+        logger.error("Health check endpoint: Database session is None")
+        return {
+            "status": "unhealthy",
+            "reason": "Internal server error: Database session unavailable",
+            "checked_at": None,
+        }
+
+    try:
+        comprehensive_health_status = perform_comprehensive_platform_health_check(database_session)
+        return comprehensive_health_status
+    except Exception as health_check_error:
+        logger.error(f"Health check failed with exception: {health_check_error}")
+        return {
+            "status": "unhealthy",
+            "reason": f"Health check error: {str(health_check_error)}",
+            "checked_at": None,
+        }
